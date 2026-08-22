@@ -202,3 +202,7 @@ table.obs .model { color: var(--ink-muted); display: block; font-weight: 400; }
   padding: 0; margin: -1px; overflow: hidden;
   clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
+
+/* secondary qualifier next to a value (retailer region, edge length) */
+.qualifier { color: var(--ink-muted); font-weight: 400; font-size: .86em; white-space: nowrap; }
+.qualifier.block { display: block; white-space: normal; }

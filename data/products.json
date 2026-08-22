@@ -9,14 +9,14 @@
       {
         "id": "sharpedge",
         "nome": "SharpEdge",
-        "paese": "Slovenia (UE)",
+        "contesto": "Slovenia, UE",
         "valuta": "EUR",
         "sito": "https://sharpedgeshop.com"
       },
       {
         "id": "hocho",
         "nome": "Hocho Knife",
-        "paese": "Giappone",
+        "contesto": "spedisce dal Giappone",
         "valuta": "USD",
         "sito": "https://www.hocho-knife.com"
       }
@@ -56,10 +56,11 @@
     {
       "id": "se-03",
       "produttore": "Hado",
-      "modello": "Shiosai (Blue)",
+      "modello": "Shiosai Blue",
       "tipo": "Bunka",
       "acciaio": "SG2",
       "lunghezza_lama_mm": 180,
+      "lunghezza_nota": "filo ~170 mm",
       "rivenditore": "SharpEdge",
       "rivenditore_id": "sharpedge",
       "disponibilita": "Disponibile",

@@ -23,9 +23,16 @@ outbound purchase intent** before any monitoring automation is built?
 Static, merchant-neutral, Italian-language availability site with a small manually verified sample.
 
 - 14 product observations, 2 independent retailers (SharpEdge, Slovenia/EUR — Hocho Knife, Japan/USD).
+- Seven distinct *marchi/produttori* represented. These are a mix of workshops, brands and house
+  lines; who forges each blade is **not** verified, so never describe this as "seven verified makers".
+  The public column is labelled "Marchio / produttore". See `RESEARCH_NOTES.md` §4.
 - Every observation carries a source URL, an observed price, an observed stock state, and a UTC timestamp.
+- Rows from different retailers are listed separately and are **not** asserted to be the same product,
+  even where the brand matches. No cross-merchant matching exists yet.
 - Availability data loaded at runtime from `data/products.json`.
-- No affiliate links, no tracking, no cookies, no forms, no personal data collection.
+- No affiliate links, no tracking, no cookies, no forms. The site itself collects nothing; the
+  contact page says plainly that emailing us means handling an email as correspondence, rather than
+  claiming "we collect no personal data" outright.
 - No product images (retailer image reuse rights are not documented).
 
 Provenance for every row, plus normalization decisions and known uncertainties, is in
@@ -71,6 +78,31 @@ Every other page is fully static and opens fine from disk.
 - affiliate integration
 - analytics
 - user accounts
+
+## Product Images — Deliberately Deferred
+
+Not added in this revision, on purpose. Reuse rights for retailer and manufacturer photography have
+not been established. Photography may materially improve the later purchase-intent experiment, so the
+sequence is:
+
+1. make the site suitable for the affiliate application (current state);
+2. after affiliate approval, check whether the merchants supply authorized product images or
+   affiliate creatives;
+3. only then decide whether to add one thumbnail per observation, before traffic testing.
+
+This rationale is internal and is not stated on the public site.
+
+## Measurement — Not Built Yet
+
+The site as it stands **cannot measure outbound purchase intent**. There is no analytics, no click
+tracking, and none was added.
+
+Before any unmoderated traffic is sent to the site, the owner must define the minimum observation
+mechanism. First candidate: **outbound click reporting from the affiliate platform**, once an
+affiliate account is approved. Do not assume this exists — availability, granularity and reliability
+of that reporting must be confirmed against the specific programme before relying on it. If it turns
+out to be unavailable or untrustworthy, an alternative must be chosen deliberately rather than by
+default, and running traffic without any measurement wastes the experiment.
 
 ## Current Experiment Sequence
 
@@ -127,5 +159,7 @@ recommendation engine. Nothing here should be built before step 8 of the experim
 - No fabricated testimonials, users, traffic, partnerships, or certifications — the site makes no
   social-proof claims of any kind.
 - No claim of real-time monitoring, complete coverage, best prices, official status, or exclusivity.
-- No claim that buying direct from Japan is cheaper; `metodologia.html` states the opposite risk
-  (shipping, VAT, customs, returns) without recommending either direction.
+- No claim that buying direct from Japan is cheaper. Cost wording is merchant-dependent: final cost
+  depends on retailer and destination, and EU vs non-EU purchases can differ on tax, shipping,
+  customs and returns — stated without recommending either direction, and without asserting that
+  every listed price uniformly excludes import VAT or duty.

@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Disponibilità osservata — Radar Coltelli Giapponesi</title>
-<meta name="description" content="Elenco delle disponibilità osservate per coltelli da cucina giapponesi presso rivenditori indipendenti, con prezzo rilevato, data e ora del controllo e link alla scheda prodotto.">
+<title>Disponibilità — Radar Coltelli Giapponesi</title>
+<meta name="description" content="Coltelli da cucina giapponesi: disponibilità, prezzo rilevato, data del controllo e link alla scheda del rivenditore.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="it_IT">
 <meta property="og:site_name" content="Radar Coltelli Giapponesi">
-<meta property="og:title" content="Disponibilità osservata — Radar Coltelli Giapponesi">
-<meta property="og:description" content="Disponibilità, prezzo rilevato e data del controllo per un campione di coltelli giapponesi presso più rivenditori.">
+<meta property="og:title" content="Disponibilità — Radar Coltelli Giapponesi">
+<meta property="og:description" content="Disponibilità, prezzo rilevato e data del controllo per un campione di coltelli giapponesi presso due rivenditori.">
 <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
@@ -33,28 +33,27 @@
 <main id="contenuto">
   <div class="wrap">
 
-    <h1>Disponibilità osservata</h1>
+    <h1>Disponibilità</h1>
 
     <p class="lede prose">
-      Ogni riga riporta ciò che il rivenditore indicava sulla propria pagina prodotto nel momento del
-      controllo, con il collegamento diretto alla scheda originale.
+      Campione verificato a mano. Ogni riga riporta quanto indicava il rivenditore al momento
+      dell'ultimo controllo.
     </p>
 
     <div class="notice">
       <p>
-        <strong>Disponibilità osservata alla data e ora indicate. Le scorte del rivenditore possono
-        cambiare senza preavviso.</strong>
+        <strong>Le scorte cambiano senza preavviso.</strong> Prezzo e disponibilità vanno riverificati
+        sul sito del rivenditore prima di acquistare.
       </p>
       <p>
-        I prezzi sono quelli esposti dal rivenditore al momento del controllo, nella valuta da lui
-        utilizzata. Non includono spedizione, dazi, IVA all'importazione o commissioni di pagamento,
-        che possono incidere in misura significativa sul costo finale. Verifica sempre le condizioni
-        aggiornate sul sito del rivenditore.
+        Il prezzo indicato è quello esposto dal rivenditore, nella sua valuta. Il costo finale dipende
+        dal rivenditore e dalla destinazione: acquisti nell'UE e fuori dall'UE possono comportare
+        imposte, spedizione, dogana e condizioni di reso diverse.
       </p>
     </div>
 
     <div id="stato-caricamento" role="status">
-      <p>Caricamento delle osservazioni in corso…</p>
+      <p>Caricamento in corso…</p>
     </div>
 
     <div class="controls" id="filtri" hidden>
@@ -72,36 +71,28 @@
       </div>
       <div class="field">
         <label for="f-ricerca">Cerca</label>
-        <input type="search" id="f-ricerca" placeholder="Produttore, modello, acciaio…" autocomplete="off">
+        <input type="search" id="f-ricerca" placeholder="Marchio, modello, acciaio…" autocomplete="off">
       </div>
     </div>
 
     <p class="result-count" id="conteggio" role="status" aria-live="polite"></p>
 
+    <h2 class="sr-only">Risultati</h2>
     <div id="risultati"></div>
 
-    <div class="prose">
-      <h2>Come leggere gli stati</h2>
-      <ul class="plain">
-        <li><span class="avail avail-ok">Disponibile</span> — al momento del controllo il rivenditore indicava il prodotto come acquistabile.</li>
-        <li><span class="avail avail-out">Esaurito</span> — al momento del controllo il rivenditore indicava il prodotto come non acquistabile.</li>
-        <li><span class="avail avail-unsure">Disponibilità incerta</span> — la pagina non consentiva di stabilire con chiarezza lo stato delle scorte. Questo stato viene usato solo quando la fonte è effettivamente ambigua.</li>
-      </ul>
-
-      <p class="meta-line">
-        Campione attuale limitato e selezionato manualmente: non rappresenta l'intera offerta dei
-        rivenditori citati né l'intero mercato. Per i criteri di rilevazione e i limiti noti, vedi la
-        <a href="metodologia.html">metodologia</a>.
-      </p>
-    </div>
+    <p class="meta-line prose">
+      I coltelli sono elencati per rivenditore, così come compaiono sulle rispettive schede. Voci di
+      rivenditori diversi non sono messe in corrispondenza tra loro, nemmeno quando il marchio
+      coincide. Vedi la <a href="metodologia.html">metodologia</a>.
+    </p>
 
   </div>
 </main>
 
 <footer class="site-footer">
   <div class="wrap">
-    <p><strong>Radar Coltelli Giapponesi</strong> — progetto informativo indipendente, non affiliato ad alcun produttore o rivenditore.</p>
-    <p>Dati aggiornati al <span id="aggiornato-il">—</span>. Le disponibilità e i prezzi sono osservazioni puntuali e possono cambiare senza preavviso.</p>
+    <p><strong>Radar Coltelli Giapponesi</strong> — progetto indipendente, non affiliato ad alcun marchio o rivenditore.</p>
+    <p>Ultimo aggiornamento: <span id="aggiornato-il">—</span>.</p>
     <p><a href="metodologia.html">Metodologia</a> · <a href="disclosure.html">Trasparenza</a> · <a href="contatti.html">Contatti</a></p>
   </div>
 </footer>

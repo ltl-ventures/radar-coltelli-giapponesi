@@ -9,7 +9,7 @@
   var WIDE = window.matchMedia("(min-width: 62rem)");
 
   var state = {
-    rows: [], meta: null, mode: null,
+    rows: [], meta: null, mode: null, retailers: {},
     filters: { rivenditore: "", tipo: "", disponibilita: "", q: "" }
   };
 
@@ -42,6 +42,17 @@
   function onData(data) {
     state.meta = data.meta || {};
     state.rows = Array.isArray(data.osservazioni) ? data.osservazioni : [];
+
+    // Short regional context per retailer, shown next to the retailer name.
+    (state.meta.rivenditori || []).forEach(function (r) { state.retailers[r.id] = r; });
+
+    // Default order is deliberately merchant-independent: grouping by retailer
+    // would put one shop at the top of every view.
+    state.rows.sort(function (a, b) {
+      return a.produttore.localeCompare(b.produttore, "it")
+        || a.tipo.localeCompare(b.tipo, "it")
+        || (a.lunghezza_lama_mm - b.lunghezza_lama_mm);
+    });
 
     if (els.status) { els.status.hidden = true; }
     if (els.controls) { els.controls.hidden = false; }
@@ -155,7 +166,7 @@
   function tableHtml(rows) {
     var head =
       "<thead><tr>" +
-      "<th scope=\"col\">Produttore / Modello</th>" +
+      "<th scope=\"col\">Marchio / produttore</th>" +
       "<th scope=\"col\">Tipo</th>" +
       "<th scope=\"col\">Acciaio</th>" +
       "<th scope=\"col\">Lama</th>" +
@@ -172,8 +183,8 @@
         "<span class=\"model\">" + escapeHtml(r.modello) + "</span></td>" +
         "<td>" + escapeHtml(r.tipo) + "</td>" +
         "<td>" + escapeHtml(r.acciaio) + "</td>" +
-        "<td class=\"num\">" + escapeHtml(String(r.lunghezza_lama_mm)) + " mm</td>" +
-        "<td>" + escapeHtml(r.rivenditore) + "</td>" +
+        "<td class=\"num\">" + lengthHtml(r) + "</td>" +
+        "<td>" + retailerHtml(r) + "</td>" +
         "<td>" + availHtml(r.disponibilita) + "</td>" +
         "<td class=\"num\">" + formatPrice(r.prezzo, r.valuta) + "</td>" +
         "<td>" + formatStamp(r.ultimo_controllo) + "</td>" +
@@ -182,26 +193,34 @@
     }).join("");
 
     return "<div class=\"table-scroll\"><table class=\"obs\">" +
-      "<caption>Disponibilità osservata alla data e ora indicate per ogni riga. " +
-      "Le scorte del rivenditore possono cambiare senza preavviso.</caption>" +
+      "<caption>Disponibilità e prezzo rilevati sul sito del rivenditore alla data indicata in ogni riga.</caption>" +
       head + "<tbody>" + body + "</tbody></table></div>";
   }
 
   function cardsHtml(rows) {
     var items = rows.map(function (r) {
+      // Heading carries brand + line + shape + length, which is unique per row;
+      // several rows otherwise share a brand and even a shape and length.
+      // Any parenthetical handle detail drops to the line below instead of
+      // repeating inside the heading.
+      var line = r.modello.split(" (")[0];
+      var detail = r.modello.indexOf(" (") > -1
+        ? r.modello.slice(r.modello.indexOf(" (") + 2).replace(/\)$/, "")
+        : "";
       return "<li class=\"card\">" +
-        "<h3>" + escapeHtml(r.produttore) + "</h3>" +
-        "<p class=\"model\">" + escapeHtml(r.modello) + "</p>" +
+        "<h3>" + escapeHtml(r.produttore) + " " + escapeHtml(line) + " — " +
+          escapeHtml(r.tipo) + " " + escapeHtml(String(r.lunghezza_lama_mm)) + " mm</h3>" +
+        (detail ? "<p class=\"model\">" + escapeHtml(detail) + "</p>" : "") +
         "<dl>" +
-        "<dt>Tipo</dt><dd>" + escapeHtml(r.tipo) + "</dd>" +
         "<dt>Acciaio</dt><dd>" + escapeHtml(r.acciaio) + "</dd>" +
-        "<dt>Lama</dt><dd>" + escapeHtml(String(r.lunghezza_lama_mm)) + " mm</dd>" +
-        "<dt>Rivenditore</dt><dd>" + escapeHtml(r.rivenditore) + "</dd>" +
+        "<dt>Lama</dt><dd>" + lengthHtml(r) + "</dd>" +
+        "<dt>Rivenditore</dt><dd>" + retailerHtml(r) + "</dd>" +
         "<dt>Disponibilità</dt><dd>" + availHtml(r.disponibilita) + "</dd>" +
         "<dt>Ultimo controllo</dt><dd>" + formatStamp(r.ultimo_controllo) + "</dd>" +
         "</dl>" +
         "<div class=\"card-foot\">" +
-        "<span class=\"price\">" + formatPrice(r.prezzo, r.valuta) + "</span>" +
+        "<span class=\"price\"><span class=\"sr-only\">Prezzo osservato: </span>" +
+          formatPrice(r.prezzo, r.valuta) + "</span>" +
         linkHtml(r) +
         "</div>" +
         "</li>";
@@ -215,6 +234,25 @@
       "Vedi sul sito del rivenditore" +
       "<span class=\"sr-only\"> — " + escapeHtml(r.produttore + " " + r.modello) + " (si apre in una nuova scheda)</span>" +
       "</a>";
+  }
+
+  // Blade length. Some sources quote a nominal designation and a shorter
+  // cutting edge; where they differ the row carries a short qualifier.
+  function lengthHtml(r) {
+    var s = escapeHtml(String(r.lunghezza_lama_mm)) + " mm";
+    if (r.lunghezza_nota) {
+      s += " <span class=\"qualifier block\">(" + escapeHtml(r.lunghezza_nota) + ")</span>";
+    }
+    return s;
+  }
+
+  function retailerHtml(r) {
+    var meta = state.retailers[r.rivenditore_id];
+    var s = escapeHtml(r.rivenditore);
+    if (meta && meta.contesto) {
+      s += "<span class=\"qualifier block\">" + escapeHtml(meta.contesto) + "</span>";
+    }
+    return s;
   }
 
   function availHtml(v) {
