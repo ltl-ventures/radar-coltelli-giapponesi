@@ -1,0 +1,42 @@
+# OS / cloud sync
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+# OneDrive / Office lock files
+~$*
+.tmp
+
+# Secrets and local config — never commit
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.*
+credentials.*
+
+# Dependencies
+node_modules/
+vendor/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Build output
+dist/
+build/
+.next/
+out/
+.cache/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Editor / tooling
+.vscode/
+.idea/
+.claude/settings.local.json
