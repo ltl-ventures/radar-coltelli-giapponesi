@@ -206,3 +206,26 @@ table.obs .model { color: var(--ink-muted); display: block; font-weight: 400; }
 /* secondary qualifier next to a value (retailer region, edge length) */
 .qualifier { color: var(--ink-muted); font-weight: 400; font-size: .86em; white-space: nowrap; }
 .qualifier.block { display: block; white-space: normal; }
+
+/* ---------- narrow-screen density ----------
+   Physical phone review (iPhone 13 mini, 375px, Safari 100% text) found the
+   header and heading rhythm taking too much of the first screen. These blocks
+   tighten vertical spacing only. Body size (17px) and body line-height (1.6)
+   are deliberately untouched, and neither block applies at desktop widths. */
+
+@media (max-width: 61.9375rem) {
+  .header-inner { padding-top: .7rem; padding-bottom: .7rem; gap: .45rem 1.5rem; }
+  .site-nav ul { gap: .5rem 1.1rem; }
+  main { padding: 1.5rem 0 2.25rem; }
+  h2 { margin-top: 1.55rem; }
+  h3 { margin-top: 1.2rem; }
+  .notice { margin: 1.15rem 0; }
+  .controls { margin: 1.15rem 0 .85rem; }
+  .site-footer { padding: 1.2rem 0 1.8rem; }
+}
+
+/* Narrow phones only. 430px-class devices keep the larger heading scale. */
+@media (max-width: 25rem) {
+  h1 { font-size: 1.68rem; line-height: 1.2; }
+  h2 { font-size: 1.14rem; }
+}
