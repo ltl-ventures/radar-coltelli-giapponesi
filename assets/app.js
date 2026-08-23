@@ -230,7 +230,13 @@
   }
 
   function linkHtml(r) {
-    return "<a href=\"" + escapeHtml(r.url) + "\" rel=\"noopener nofollow external\" target=\"_blank\">" +
+    // Affiliate status comes from the retailer, not from individual products:
+    // retailers flagged "affiliato" in meta get rel="sponsored".
+    var meta = state.retailers[r.rivenditore_id];
+    var rel = (meta && meta.affiliato)
+      ? "sponsored nofollow noopener external"
+      : "noopener nofollow external";
+    return "<a href=\"" + escapeHtml(r.url) + "\" rel=\"" + rel + "\" target=\"_blank\">" +
       "Vedi sul sito del rivenditore" +
       "<span class=\"sr-only\"> — " + escapeHtml(r.produttore + " " + r.modello) + " (si apre in una nuova scheda)</span>" +
       "</a>";
