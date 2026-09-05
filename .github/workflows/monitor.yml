@@ -2,9 +2,9 @@ name: monitor
 
 # L054 availability / price monitor.
 #
-# SAFETY: scheduled runs are DRY-RUN until SCHEDULED_MODE below is deliberately
-# changed to 'write' after staged validation. A scheduled run cannot enter write
-# mode by accident, and workflow_dispatch defaults to dry-run.
+# SAFETY: scheduled runs are LIVE. SCHEDULED_MODE below is 'write', so the two
+# daily runs may update data/products.json unattended. Setting that single value
+# back to 'dry-run' disables unattended writes without changing anything else.
 
 on:
   schedule:
@@ -28,10 +28,10 @@ concurrency:
 
 env:
   # ---------------------------------------------------------------------------
-  # Scheduled-run mode. Leave as 'dry-run' until the staged validation in
-  # Monitoring_Operations_28D.md §15 has passed. Changing this single value is
-  # the deliberate act that enables unattended writes.
-  SCHEDULED_MODE: dry-run
+  # Scheduled-run mode. Staged validation passed 2026-09-05: dry-run run
+  # 33949070901, then production write run 33957657334 (3 confirmed changes
+  # written, deployed and verified live). Unattended writes are now enabled.
+  SCHEDULED_MODE: write
   # ---------------------------------------------------------------------------
 
 jobs:
