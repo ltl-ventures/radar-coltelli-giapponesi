@@ -1,0 +1,116 @@
+name: monitor
+
+# L054 availability / price monitor.
+#
+# SAFETY: scheduled runs are DRY-RUN until SCHEDULED_MODE below is deliberately
+# changed to 'write' after staged validation. A scheduled run cannot enter write
+# mode by accident, and workflow_dispatch defaults to dry-run.
+
+on:
+  schedule:
+    - cron: '0 6 * * *'    # ~08:00 Italy (CEST)
+    - cron: '0 18 * * *'   # ~20:00 Italy (CEST)
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'dry-run (default) or write'
+        type: choice
+        options: [dry-run, write]
+        default: dry-run
+      force_deploy:
+        description: 'Deploy current origin/main even with no data change (Pages migration / recovery test)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: l054-monitor
+  cancel-in-progress: false
+
+env:
+  # ---------------------------------------------------------------------------
+  # Scheduled-run mode. Leave as 'dry-run' until the staged validation in
+  # Monitoring_Operations_28D.md §15 has passed. Changing this single value is
+  # the deliberate act that enables unattended writes.
+  SCHEDULED_MODE: dry-run
+  # ---------------------------------------------------------------------------
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # writes data/products.json only. NOT pages/id-token.
+    outputs:
+      deploy_needed: ${{ steps.run.outputs.deploy_needed }}
+      deploy_ref:    ${{ steps.run.outputs.deploy_ref }}
+      data_changed:  ${{ steps.run.outputs.data_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Assert clean tree and expected branch
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse --abbrev-ref HEAD)" = "main" || { echo "not on main"; exit 1; }
+          test -z "$(git status --porcelain)" || { echo "working tree not clean"; exit 1; }
+
+      - name: Resolve effective mode
+        id: mode
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            MODE="${{ inputs.mode }}"
+            FORCE="${{ inputs.force_deploy }}"
+          else
+            MODE="${{ env.SCHEDULED_MODE }}"
+            FORCE="false"
+          fi
+          echo "mode=$MODE"   >> "$GITHUB_OUTPUT"
+          echo "force=$FORCE" >> "$GITHUB_OUTPUT"
+          echo "Effective mode: $MODE (force_deploy=$FORCE)"
+
+      - name: Self-test (guardrails must hold before any live run)
+        shell: pwsh
+        run: ./scripts/monitor.ps1 -Mode selftest
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "Masahide Nashiro"
+          git config user.email "319857505+ltl-ventures@users.noreply.github.com"
+
+      - name: Run monitor
+        id: run
+        shell: pwsh
+        env:
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          $args = @('-Mode', '${{ steps.mode.outputs.mode }}')
+          if ('${{ steps.mode.outputs.force }}' -eq 'true') { $args += '-ForceDeploy' }
+          ./scripts/monitor.ps1 @args
+
+  # Commits pushed with GITHUB_TOKEN do not trigger the Pages build, so the
+  # deployment is invoked explicitly with the exact SHA to publish.
+  deploy:
+    needs: monitor
+    if: needs.monitor.outputs.deploy_needed == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/pages.yml
+    with:
+      deploy_ref: ${{ needs.monitor.outputs.deploy_ref }}
+
+  verify:
+    needs: [monitor, deploy]
+    if: needs.deploy.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.monitor.outputs.deploy_ref }}
+      - name: Verify live site matches deployed data
+        shell: pwsh
+        run: ./scripts/monitor.ps1 -Mode verify -ExpectRef '${{ needs.monitor.outputs.deploy_ref }}'

@@ -1,0 +1,12 @@
+# Keep JSON LF-normalised so the monitor cannot produce whole-file CRLF/LF churn.
+# Without this, a Windows-authored write would rewrite every line of products.json
+# on each run, destroying the Git-history audit trail the monitor depends on.
+*.json text eol=lf
+
+# Site sources and scripts: normalise too, for the same reason.
+*.html text eol=lf
+*.css  text eol=lf
+*.js   text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.ps1  text eol=lf

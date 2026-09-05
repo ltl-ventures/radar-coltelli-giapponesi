@@ -1,0 +1,87 @@
+name: pages
+
+# Canonical GitHub Pages deployment for Radar Coltelli Giapponesi.
+#
+# Two entry points:
+#   A. push to main        - ordinary owner / Claude Code commits
+#   B. workflow_call       - invoked directly by monitor.yml, because commits pushed
+#                            with GITHUB_TOKEN do NOT trigger a Pages build
+#
+# Requires repository setting: Settings > Pages > Build and deployment > Source = GitHub Actions
+
+on:
+  push:
+    branches: [main]
+  workflow_call:
+    inputs:
+      deploy_ref:
+        description: 'Exact commit SHA to deploy. Required for workflow_call.'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # For workflow_call we check out the EXACT SHA the caller intends to publish.
+      # github.sha would point at the caller's pre-monitor commit, which may predate
+      # the data commit the monitor just pushed.
+      - name: Resolve deploy ref
+        id: ref
+        run: |
+          if [ -n "${{ inputs.deploy_ref }}" ]; then
+            echo "sha=${{ inputs.deploy_ref }}" >> "$GITHUB_OUTPUT"
+            echo "Deploying caller-supplied ref: ${{ inputs.deploy_ref }}"
+          else
+            echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+            echo "Deploying push ref: ${{ github.sha }}"
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.ref.outputs.sha }}
+
+      - name: Stage public site payload
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          # Public site payload only. .github/, scripts/, README.md, .gitattributes
+          # and Git metadata are deliberately not published.
+          cp index.html disponibilita.html metodologia.html disclosure.html contatti.html _site/
+          cp -r assets _site/assets
+          cp -r data   _site/data
+          echo "--- staged ---"
+          find _site -type f | sort
+
+      - name: Verify staged payload
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+          test -f _site/data/products.json
+          test -f _site/assets/app.js
+          test -f _site/assets/styles.css
+          # nothing internal may enter the artifact
+          if [ -e _site/.github ] || [ -e _site/scripts ] || [ -e _site/.git ]; then
+            echo "internal path leaked into site payload"; exit 1
+          fi
+          n=$(grep -c '"id": "' _site/data/products.json || true)
+          echo "products.json id fields: $n"
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+      - id: deployment
+        uses: actions/deploy-pages@v4
