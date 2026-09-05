@@ -84,11 +84,13 @@ jobs:
         env:
           GIT_TERMINAL_PROMPT: '0'
         run: |
-          # NOTE: $args is a PowerShell automatic variable - splatting it does not
-          # behave as a normal array. Use a distinct name.
-          $scriptArgs = @('-Mode', '${{ steps.mode.outputs.mode }}')
-          if ('${{ steps.mode.outputs.force }}' -eq 'true') { $scriptArgs += '-ForceDeploy' }
-          ./scripts/monitor.ps1 @scriptArgs
+          # Splat a HASHTABLE: it binds by parameter name. An array splat binds
+          # positionally, which would pass the literal "-Mode" as the value of -Mode.
+          $p = @{ Mode = '${{ steps.mode.outputs.mode }}' }
+          if ('${{ steps.mode.outputs.force }}' -eq 'true') {
+              $p.ForceDeploy = $true
+          }
+          ./scripts/monitor.ps1 @p
 
   # Commits pushed with GITHUB_TOKEN do not trigger the Pages build, so the
   # deployment is invoked explicitly with the exact SHA to publish.
