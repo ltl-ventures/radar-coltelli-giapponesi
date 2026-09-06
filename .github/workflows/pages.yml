@@ -59,7 +59,7 @@ jobs:
           mkdir -p _site
           # Public site payload only. .github/, scripts/, README.md, .gitattributes
           # and Git metadata are deliberately not published.
-          cp index.html disponibilita.html metodologia.html disclosure.html contatti.html _site/
+          cp index.html disponibilita.html metodologia.html disclosure.html contatti.html sitemap.xml _site/
           cp -r assets _site/assets
           cp -r data   _site/data
           echo "--- staged ---"

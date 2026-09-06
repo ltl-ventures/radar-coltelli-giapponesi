@@ -13,6 +13,8 @@ before buying.
 
 The project is independent and is not affiliated with any brand or retailer.
 
+Live site: <https://ltl-ventures.github.io/radar-coltelli-giapponesi/>
+
 ## Pages
 
 | File | Contents |
